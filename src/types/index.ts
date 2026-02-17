@@ -8,6 +8,14 @@ export type Project = {
   githubUrl?: string;
   status: ProjectStatus;
   color: string;
+  groupId?: string;
+  createdAt: string;
+};
+
+export type Group = {
+  id: string;
+  name: string;
+  color: string;
   createdAt: string;
 };
 

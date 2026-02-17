@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { Project, ProjectStatus } from "@/types";
+import { Project, ProjectStatus, Group } from "@/types";
 
 const PROJECT_COLORS = [
   "#6366f1", "#8b5cf6", "#a855f7", "#ec4899",
@@ -11,17 +11,19 @@ const PROJECT_COLORS = [
 
 type ProjectFormProps = {
   project?: Project;
+  groups?: Group[];
   onSave: (data: Omit<Project, "id" | "createdAt">) => void;
   onClose: () => void;
 };
 
-export default function ProjectForm({ project, onSave, onClose }: ProjectFormProps) {
+export default function ProjectForm({ project, groups = [], onSave, onClose }: ProjectFormProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
   const [status, setStatus] = useState<ProjectStatus>("planned");
   const [color, setColor] = useState(PROJECT_COLORS[0]);
+  const [groupId, setGroupId] = useState<string>("");
 
   useEffect(() => {
     if (project) {
@@ -31,6 +33,7 @@ export default function ProjectForm({ project, onSave, onClose }: ProjectFormPro
       setGithubUrl(project.githubUrl || "");
       setStatus(project.status);
       setColor(project.color);
+      setGroupId(project.groupId || "");
     }
   }, [project]);
 
@@ -44,6 +47,7 @@ export default function ProjectForm({ project, onSave, onClose }: ProjectFormPro
       githubUrl: githubUrl.trim() || undefined,
       status,
       color,
+      groupId: groupId || undefined,
     });
   };
 
@@ -81,6 +85,20 @@ export default function ProjectForm({ project, onSave, onClose }: ProjectFormPro
               rows={2}
               className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm resize-none"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Grupa</label>
+            <select
+              value={groupId}
+              onChange={(e) => setGroupId(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 text-sm"
+            >
+              <option value="">Brak grupy</option>
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
           </div>
 
           <div>

@@ -1,7 +1,8 @@
-import { Project, Task } from "@/types";
+import { Project, Task, Group } from "@/types";
 
 const PROJECTS_KEY = "projekty-panel-projects";
 const TASKS_KEY = "projekty-panel-tasks";
+const GROUPS_KEY = "projekty-panel-groups";
 
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
@@ -88,11 +89,58 @@ export function deleteTask(id: string): void {
   localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
 }
 
+// ============ GROUPS ============
+
+export function getGroups(): Group[] {
+  if (typeof window === "undefined") return [];
+  const data = localStorage.getItem(GROUPS_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+export function getGroup(id: string): Group | undefined {
+  return getGroups().find((g) => g.id === id);
+}
+
+export function saveGroup(group: Omit<Group, "id" | "createdAt">): Group {
+  const groups = getGroups();
+  const newGroup: Group = {
+    ...group,
+    id: generateId(),
+    createdAt: new Date().toISOString(),
+  };
+  groups.push(newGroup);
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(groups));
+  return newGroup;
+}
+
+export function updateGroup(id: string, data: Partial<Omit<Group, "id" | "createdAt">>): Group | undefined {
+  const groups = getGroups();
+  const index = groups.findIndex((g) => g.id === id);
+  if (index === -1) return undefined;
+  groups[index] = { ...groups[index], ...data };
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(groups));
+  return groups[index];
+}
+
+export function deleteGroup(id: string): void {
+  const groups = getGroups().filter((g) => g.id !== id);
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(groups));
+  // Remove groupId from projects that belonged to this group
+  const projects = getProjects().map((p) =>
+    p.groupId === id ? { ...p, groupId: undefined } : p
+  );
+  localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
+}
+
 // ============ SEED DATA ============
 
 export function seedDataIfEmpty(): void {
   const projects = getProjects();
   if (projects.length > 0) return;
+
+  // Seed groups
+  const g1 = saveGroup({ name: "Osobiste", color: "#6366f1" });
+  saveGroup({ name: "Praca", color: "#f59e0b" });
 
   const p1 = saveProject({
     name: "Inner Game Landing",
@@ -101,6 +149,7 @@ export function seedDataIfEmpty(): void {
     githubUrl: "https://github.com/arkusautomation-droid/inner-game-landing",
     status: "active",
     color: "#6366f1",
+    groupId: g1.id,
   });
 
   const p2 = saveProject({
@@ -110,6 +159,7 @@ export function seedDataIfEmpty(): void {
     githubUrl: "https://github.com/arkusautomation-droid/seo-agencja-landing",
     status: "active",
     color: "#8b5cf6",
+    groupId: g1.id,
   });
 
   // Sample tasks for Inner Game

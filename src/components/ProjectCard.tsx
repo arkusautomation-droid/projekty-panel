@@ -19,22 +19,35 @@ const statusColors: Record<string, string> = {
 type ProjectCardProps = {
   project: Project;
   tasks: Task[];
+  groupName?: string;
+  groupColor?: string;
   onEdit: () => void;
   onDelete: () => void;
 };
 
-export default function ProjectCard({ project, tasks, onEdit, onDelete }: ProjectCardProps) {
+export default function ProjectCard({ project, tasks, groupName, groupColor, onEdit, onDelete }: ProjectCardProps) {
   const doneTasks = tasks.filter((t) => t.status === "done").length;
   const totalTasks = tasks.length;
 
   return (
     <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-5 hover:border-gray-600/50 transition-all group">
       <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: project.color }} />
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[project.status]}`}>
             {statusLabels[project.status]}
           </span>
+          {groupName && (
+            <span
+              className="text-xs font-medium px-2 py-0.5 rounded-full"
+              style={{
+                backgroundColor: groupColor ? `${groupColor}20` : "rgba(99,102,241,0.13)",
+                color: groupColor || "#6366f1",
+              }}
+            >
+              {groupName}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
           <button
