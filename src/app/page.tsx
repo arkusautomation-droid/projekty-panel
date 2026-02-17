@@ -120,6 +120,7 @@ export default function Dashboard() {
         onNewGroup={handleNewGroup}
         selectedGroupId={selectedGroupId}
         onSelectGroup={setSelectedGroupId}
+        onProjectMoved={refreshData}
       />
 
       <main className="flex-1 p-4 pt-16 lg:ml-64 lg:p-8 lg:pt-8">
