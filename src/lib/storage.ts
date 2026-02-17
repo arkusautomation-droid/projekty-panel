@@ -1,4 +1,4 @@
-import { Project, Task, Group } from "@/types";
+import { Project, Task, Group, ChecklistItem } from "@/types";
 
 const PROJECTS_KEY = "projekty-panel-projects";
 const TASKS_KEY = "projekty-panel-tasks";
@@ -86,6 +86,38 @@ export function updateTask(id: string, data: Partial<Omit<Task, "id" | "createdA
 
 export function deleteTask(id: string): void {
   const tasks = getTasks().filter((t) => t.id !== id);
+  localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+}
+
+// ============ CHECKLIST ============
+
+export function addChecklistItem(taskId: string, text: string): ChecklistItem | undefined {
+  const tasks = getTasks();
+  const index = tasks.findIndex((t) => t.id === taskId);
+  if (index === -1) return undefined;
+  const item: ChecklistItem = { id: generateId(), text, done: false };
+  tasks[index].checklist = [...(tasks[index].checklist || []), item];
+  localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+  return item;
+}
+
+export function toggleChecklistItem(taskId: string, itemId: string): void {
+  const tasks = getTasks();
+  const index = tasks.findIndex((t) => t.id === taskId);
+  if (index === -1) return;
+  const checklist = tasks[index].checklist || [];
+  const itemIndex = checklist.findIndex((i) => i.id === itemId);
+  if (itemIndex === -1) return;
+  checklist[itemIndex].done = !checklist[itemIndex].done;
+  tasks[index].checklist = checklist;
+  localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+}
+
+export function deleteChecklistItem(taskId: string, itemId: string): void {
+  const tasks = getTasks();
+  const index = tasks.findIndex((t) => t.id === taskId);
+  if (index === -1) return;
+  tasks[index].checklist = (tasks[index].checklist || []).filter((i) => i.id !== itemId);
   localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
 }
 

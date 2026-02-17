@@ -120,6 +120,7 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
               onAddTask={() => handleAddTask(status)}
               onEditTask={handleEditTask}
               onDeleteTask={handleDeleteTask}
+              onUpdate={refreshTasks}
             />
           ))}
         </div>

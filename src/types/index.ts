@@ -22,6 +22,12 @@ export type Group = {
 export type TaskStatus = "todo" | "in_progress" | "done";
 export type TaskPriority = "low" | "medium" | "high";
 
+export type ChecklistItem = {
+  id: string;
+  text: string;
+  done: boolean;
+};
+
 export type Task = {
   id: string;
   projectId: string;
@@ -29,5 +35,6 @@ export type Task = {
   description?: string;
   status: TaskStatus;
   priority: TaskPriority;
+  checklist?: ChecklistItem[];
   createdAt: string;
 };
