@@ -12,9 +12,10 @@ import {
   closestCorners,
 } from "@dnd-kit/core";
 import { Task, TaskStatus, TaskPriority } from "@/types";
-import { getTasks, saveTask, updateTask, deleteTask } from "@/lib/storage";
+import { getTasks, saveTask, updateTask, deleteTask, addChecklistItem } from "@/lib/storage";
 import TaskColumn from "./TaskColumn";
 import TaskForm from "./TaskForm";
+import ProcedureModal from "./ProcedureModal";
 
 const COLUMNS: TaskStatus[] = ["todo", "in_progress", "done"];
 
@@ -27,6 +28,7 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>("todo");
+  const [procedureTask, setProcedureTask] = useState<Task | undefined>();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -36,6 +38,36 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
   const refreshTasks = useCallback(() => {
     setTasks(getTasks(projectId));
   }, [projectId]);
+
+  const handleStatusChange = (task: Task, newStatus: TaskStatus) => {
+    if (task.status === newStatus) return;
+
+    const updates: Partial<Task> = { status: newStatus };
+
+    // Starting procedure: record startedAt
+    if (newStatus === "in_progress" && !task.startedAt) {
+      updates.startedAt = new Date().toISOString();
+    }
+
+    // Completing: record completedAt
+    if (newStatus === "done" && !task.completedAt) {
+      updates.completedAt = new Date().toISOString();
+    }
+
+    // Moving back from done: clear completedAt
+    if (newStatus !== "done" && task.completedAt) {
+      updates.completedAt = undefined;
+    }
+
+    updateTask(task.id, updates);
+    refreshTasks();
+
+    // If moved to in_progress and no checklist steps, show procedure modal
+    if (newStatus === "in_progress" && (!task.checklist || task.checklist.length === 0)) {
+      const updated = getTasks(projectId).find((t) => t.id === task.id);
+      if (updated) setProcedureTask(updated);
+    }
+  };
 
   const handleAddTask = (status: TaskStatus) => {
     setDefaultStatus(status);
@@ -65,6 +97,13 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
     setEditingTask(undefined);
   };
 
+  const handleProcedureSave = (steps: string[]) => {
+    if (!procedureTask) return;
+    steps.forEach((step) => addChecklistItem(procedureTask.id, step));
+    refreshTasks();
+    setProcedureTask(undefined);
+  };
+
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
     if (!over) return;
@@ -72,15 +111,12 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
     const activeTask = tasks.find((t) => t.id === active.id);
     if (!activeTask) return;
 
-    // Check if dropping over a column
     const overColumn = COLUMNS.includes(over.id as TaskStatus) ? (over.id as TaskStatus) : null;
-    // Check if dropping over another task
     const overTask = tasks.find((t) => t.id === over.id);
     const newStatus = overColumn || (overTask ? overTask.status : null);
 
     if (newStatus && activeTask.status !== newStatus) {
-      updateTask(activeTask.id, { status: newStatus });
-      refreshTasks();
+      handleStatusChange(activeTask, newStatus);
     }
   };
 
@@ -96,8 +132,7 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
     const newStatus = overColumn || (overTask ? overTask.status : null);
 
     if (newStatus && activeTask.status !== newStatus) {
-      updateTask(activeTask.id, { status: newStatus });
-      refreshTasks();
+      handleStatusChange(activeTask, newStatus);
     }
   };
 
@@ -132,6 +167,14 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
           defaultStatus={defaultStatus}
           onSave={handleSaveTask}
           onClose={() => { setShowForm(false); setEditingTask(undefined); }}
+        />
+      )}
+
+      {procedureTask && (
+        <ProcedureModal
+          taskTitle={procedureTask.title}
+          onSave={handleProcedureSave}
+          onSkip={() => setProcedureTask(undefined)}
         />
       )}
     </>

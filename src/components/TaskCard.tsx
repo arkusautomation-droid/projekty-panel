@@ -1,11 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2, Edit2, Plus, X, Check } from "lucide-react";
+import { GripVertical, Trash2, Edit2, Plus, X, Check, Clock } from "lucide-react";
 import { Task } from "@/types";
 import { addChecklistItem, toggleChecklistItem, deleteChecklistItem } from "@/lib/storage";
+
+function formatElapsed(startedAt: string): string {
+  const diff = Date.now() - new Date(startedAt).getTime();
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  if (days > 0) return `${days}d ${hours % 24}h`;
+  if (hours > 0) return `${hours}h ${minutes % 60}m`;
+  return `${minutes}m`;
+}
 
 const priorityColors: Record<string, string> = {
   low: "bg-green-500",
@@ -29,6 +39,14 @@ type TaskCardProps = {
 export default function TaskCard({ task, onEdit, onDelete, onUpdate }: TaskCardProps) {
   const [showAddItem, setShowAddItem] = useState(false);
   const [newItemText, setNewItemText] = useState("");
+  const [elapsed, setElapsed] = useState("");
+
+  useEffect(() => {
+    if (!task.startedAt || task.status === "done") return;
+    setElapsed(formatElapsed(task.startedAt));
+    const interval = setInterval(() => setElapsed(formatElapsed(task.startedAt!)), 60000);
+    return () => clearInterval(interval);
+  }, [task.startedAt, task.status]);
 
   const {
     attributes,
@@ -164,11 +182,23 @@ export default function TaskCard({ task, onEdit, onDelete, onUpdate }: TaskCardP
             </button>
           )}
 
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
             <span className="flex items-center gap-1 text-xs text-gray-500">
               <span className={`w-1.5 h-1.5 rounded-full ${priorityColors[task.priority]}`} />
               {priorityLabels[task.priority]}
             </span>
+            {task.startedAt && task.status === "in_progress" && elapsed && (
+              <span className="flex items-center gap-1 text-xs text-indigo-400">
+                <Clock className="w-3 h-3" />
+                {elapsed}
+              </span>
+            )}
+            {task.completedAt && task.status === "done" && (
+              <span className="flex items-center gap-1 text-xs text-green-400">
+                <Check className="w-3 h-3" />
+                Ukończone
+              </span>
+            )}
           </div>
         </div>
 

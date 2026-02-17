@@ -36,5 +36,7 @@ export type Task = {
   status: TaskStatus;
   priority: TaskPriority;
   checklist?: ChecklistItem[];
+  startedAt?: string;
+  completedAt?: string;
   createdAt: string;
 };
