@@ -223,3 +223,54 @@ export function seedDataIfEmpty(): void {
     addChecklistItem(t2.id, "Podpiąć wysyłkę emaili");
   }
 }
+
+export function loadDemoData(): void {
+  // Create demo groups
+  const g1 = saveGroup({ name: "Osobiste", color: "#6366f1" });
+  const g2 = saveGroup({ name: "Praca", color: "#f59e0b" });
+
+  // Demo project 1 — with checklist in progress
+  const p1 = saveProject({
+    name: "Inner Game Landing",
+    description: "Landing page dla Inner Game — coaching i rozwój osobisty",
+    url: "https://inner-game-landing.vercel.app",
+    githubUrl: "https://github.com/arkusautomation-droid/inner-game-landing",
+    status: "active",
+    color: "#6366f1",
+    groupId: g1.id,
+  });
+
+  const t1a = saveTask({ projectId: p1.id, title: "Dodać sekcję testimoniali", status: "todo", priority: "medium" });
+  addChecklistItem(t1a.id, "Zebrać opinie klientów");
+  addChecklistItem(t1a.id, "Zaprojektować karuzele");
+
+  const t1b = saveTask({ projectId: p1.id, title: "Poprawić responsywność mobile", status: "in_progress", priority: "high" });
+  updateTask(t1b.id, { startedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() }); // started 2h ago
+  addChecklistItem(t1b.id, "Naprawić menu na telefonie");
+  addChecklistItem(t1b.id, "Poprawić rozmiar czcionki");
+  addChecklistItem(t1b.id, "Przetestować na tablecie");
+  // Toggle first item as done
+  const updatedT1b = getTasks(p1.id).find((t) => t.id === t1b.id);
+  if (updatedT1b?.checklist?.[0]) toggleChecklistItem(t1b.id, updatedT1b.checklist[0].id);
+
+  saveTask({ projectId: p1.id, title: "Skonfigurować domenę", status: "done", priority: "high" });
+
+  // Demo project 2 — in "Praca" group
+  const p2 = saveProject({
+    name: "SEO Agencja Medialna",
+    description: "Landing page dla agencji SEO — usługi marketingowe",
+    url: "https://seo-agencja-landing.vercel.app",
+    githubUrl: "https://github.com/arkusautomation-droid/seo-agencja-landing",
+    status: "active",
+    color: "#8b5cf6",
+    groupId: g2.id,
+  });
+
+  const t2a = saveTask({ projectId: p2.id, title: "Dodać formularz kontaktowy", status: "todo", priority: "high" });
+  addChecklistItem(t2a.id, "Zaprojektować formularz");
+  addChecklistItem(t2a.id, "Dodać walidację pól");
+  addChecklistItem(t2a.id, "Podpiąć wysyłkę emaili");
+
+  saveTask({ projectId: p2.id, title: "Zoptymalizować SEO meta tagi", status: "in_progress", priority: "medium" });
+  saveTask({ projectId: p2.id, title: "Deploy na Vercel", status: "done", priority: "high" });
+}

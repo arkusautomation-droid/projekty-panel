@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Database } from "lucide-react";
 import { Project, Group } from "@/types";
 import {
   getProjects,
@@ -14,6 +14,7 @@ import {
   updateGroup,
   deleteGroup,
   seedDataIfEmpty,
+  loadDemoData,
 } from "@/lib/storage";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
@@ -67,6 +68,11 @@ export default function Dashboard() {
     setShowForm(true);
   };
 
+  const handleLoadDemo = () => {
+    loadDemoData();
+    refreshData();
+  };
+
   // Group handlers
   const handleGroupSave = (data: Omit<Group, "id" | "createdAt">) => {
     if (editingGroup) {
@@ -115,13 +121,22 @@ export default function Dashboard() {
         <Header
           title="Moje Projekty"
           actions={
-            <button
-              onClick={handleNewProject}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Nowy projekt
-            </button>
+            <>
+              <button
+                onClick={handleLoadDemo}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-600 hover:bg-gray-800 text-gray-300 text-sm font-medium rounded-lg transition-colors"
+              >
+                <Database className="w-4 h-4" />
+                Załaduj demo
+              </button>
+              <button
+                onClick={handleNewProject}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Nowy projekt
+              </button>
+            </>
           }
         />
 
