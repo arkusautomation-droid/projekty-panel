@@ -101,6 +101,11 @@ export default function Dashboard() {
     refreshData();
   };
 
+  const handleChangeGroup = (projectId: string, groupId: string | undefined) => {
+    updateProject(projectId, { groupId });
+    refreshData();
+  };
+
   // Filter projects
   const filteredProjects = selectedGroupId === null
     ? projects
@@ -203,10 +208,12 @@ export default function Dashboard() {
                 key={project.id}
                 project={project}
                 tasks={getTasks(project.id)}
+                groups={groups}
                 groupName={groups.find((g) => g.id === project.groupId)?.name}
                 groupColor={groups.find((g) => g.id === project.groupId)?.color}
                 onEdit={() => handleEdit(project)}
                 onDelete={() => handleDelete(project.id)}
+                onChangeGroup={handleChangeGroup}
               />
             ))}
           </div>
