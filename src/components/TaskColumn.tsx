@@ -26,7 +26,7 @@ export default function TaskColumn({ status, tasks, onAddTask, onEditTask, onDel
 
   return (
     <div
-      className={`flex flex-col bg-gray-900/50 rounded-xl border-t-2 ${config.color} min-h-[400px] transition-colors ${
+      className={`flex flex-col bg-gray-900/50 rounded-xl border-t-2 ${config.color} min-h-[200px] md:min-h-[400px] transition-colors ${
         isOver ? "bg-gray-800/50" : ""
       }`}
     >

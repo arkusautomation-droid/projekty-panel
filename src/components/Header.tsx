@@ -11,7 +11,7 @@ type HeaderProps = {
 
 export default function Header({ title, backHref, actions }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between mb-8">
+    <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6 lg:mb-8">
       <div className="flex items-center gap-3">
         {backHref && (
           <Link
@@ -21,7 +21,7 @@ export default function Header({ title, backHref, actions }: HeaderProps) {
             <ArrowLeft className="w-5 h-5" />
           </Link>
         )}
-        <h1 className="text-2xl font-bold text-white">{title}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-white">{title}</h1>
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </header>

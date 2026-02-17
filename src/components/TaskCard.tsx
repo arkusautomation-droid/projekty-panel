@@ -68,7 +68,7 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+        <div className="flex flex-col gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
           <button
             onClick={onEdit}
             className="p-1 rounded text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"

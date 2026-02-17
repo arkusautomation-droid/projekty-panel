@@ -36,7 +36,7 @@ export default function ProjectCard({ project, tasks, onEdit, onDelete }: Projec
             {statusLabels[project.status]}
           </span>
         </div>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
           <button
             onClick={(e) => { e.preventDefault(); onEdit(); }}
             className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
