@@ -60,7 +60,7 @@ export default function Dashboard() {
     <div className="flex min-h-screen">
       <Sidebar onNewProject={handleNewProject} />
 
-      <main className="flex-1 ml-64 p-8">
+      <main className="flex-1 p-4 pt-16 lg:ml-64 lg:p-8 lg:pt-8">
         <Header
           title="Moje Projekty"
           actions={
