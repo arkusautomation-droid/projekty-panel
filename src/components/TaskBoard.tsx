@@ -6,6 +6,7 @@ import {
   DragEndEvent,
   DragOverEvent,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCorners,
@@ -28,7 +29,8 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>("todo");
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
   );
 
   const refreshTasks = useCallback(() => {
