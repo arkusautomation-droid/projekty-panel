@@ -168,39 +168,58 @@ export function deleteGroup(id: string): void {
 
 export function seedDataIfEmpty(): void {
   const projects = getProjects();
-  if (projects.length > 0) return;
+  const groups = getGroups();
 
-  // Seed groups
-  const g1 = saveGroup({ name: "Osobiste", color: "#6366f1" });
-  saveGroup({ name: "Praca", color: "#f59e0b" });
+  // Seed groups if empty
+  let g1Id: string | undefined;
+  if (groups.length === 0) {
+    const g1 = saveGroup({ name: "Osobiste", color: "#6366f1" });
+    saveGroup({ name: "Praca", color: "#f59e0b" });
+    g1Id = g1.id;
+  }
 
-  const p1 = saveProject({
-    name: "Inner Game Landing",
-    description: "Landing page dla Inner Game — coaching i rozwój osobisty",
-    url: "https://inner-game-landing.vercel.app",
-    githubUrl: "https://github.com/arkusautomation-droid/inner-game-landing",
-    status: "active",
-    color: "#6366f1",
-    groupId: g1.id,
-  });
+  // Seed projects if empty
+  if (projects.length === 0) {
+    const groupId = g1Id || getGroups().find((g) => g.name === "Osobiste")?.id;
 
-  const p2 = saveProject({
-    name: "SEO Agencja Medialna",
-    description: "Landing page dla agencji SEO — usługi marketingowe",
-    url: "https://seo-agencja-landing.vercel.app",
-    githubUrl: "https://github.com/arkusautomation-droid/seo-agencja-landing",
-    status: "active",
-    color: "#8b5cf6",
-    groupId: g1.id,
-  });
+    const p1 = saveProject({
+      name: "Inner Game Landing",
+      description: "Landing page dla Inner Game — coaching i rozwój osobisty",
+      url: "https://inner-game-landing.vercel.app",
+      githubUrl: "https://github.com/arkusautomation-droid/inner-game-landing",
+      status: "active",
+      color: "#6366f1",
+      groupId,
+    });
 
-  // Sample tasks for Inner Game
-  saveTask({ projectId: p1.id, title: "Dodać sekcję testimoniali", status: "todo", priority: "medium" });
-  saveTask({ projectId: p1.id, title: "Poprawić responsywność mobile", status: "in_progress", priority: "high" });
-  saveTask({ projectId: p1.id, title: "Skonfigurować domenę", status: "done", priority: "high" });
+    const p2 = saveProject({
+      name: "SEO Agencja Medialna",
+      description: "Landing page dla agencji SEO — usługi marketingowe",
+      url: "https://seo-agencja-landing.vercel.app",
+      githubUrl: "https://github.com/arkusautomation-droid/seo-agencja-landing",
+      status: "active",
+      color: "#8b5cf6",
+      groupId,
+    });
 
-  // Sample tasks for SEO Agencja
-  saveTask({ projectId: p2.id, title: "Dodać formularz kontaktowy", status: "todo", priority: "high" });
-  saveTask({ projectId: p2.id, title: "Zoptymalizować SEO meta tagi", status: "in_progress", priority: "medium" });
-  saveTask({ projectId: p2.id, title: "Deploy na Vercel", status: "done", priority: "high" });
+    // Sample tasks with checklist for Inner Game
+    saveTask({ projectId: p1.id, title: "Dodać sekcję testimoniali", status: "todo", priority: "medium" });
+    const t1 = saveTask({ projectId: p1.id, title: "Poprawić responsywność mobile", status: "in_progress", priority: "high" });
+    saveTask({ projectId: p1.id, title: "Skonfigurować domenę", status: "done", priority: "high" });
+
+    // Example checklist on in-progress task
+    addChecklistItem(t1.id, "Naprawić menu na telefonie");
+    addChecklistItem(t1.id, "Poprawić rozmiar czcionki");
+    addChecklistItem(t1.id, "Przetestować na tablecie");
+
+    // Sample tasks with checklist for SEO Agencja
+    const t2 = saveTask({ projectId: p2.id, title: "Dodać formularz kontaktowy", status: "todo", priority: "high" });
+    saveTask({ projectId: p2.id, title: "Zoptymalizować SEO meta tagi", status: "in_progress", priority: "medium" });
+    saveTask({ projectId: p2.id, title: "Deploy na Vercel", status: "done", priority: "high" });
+
+    // Example checklist
+    addChecklistItem(t2.id, "Zaprojektować formularz");
+    addChecklistItem(t2.id, "Dodać walidację pól");
+    addChecklistItem(t2.id, "Podpiąć wysyłkę emaili");
+  }
 }
